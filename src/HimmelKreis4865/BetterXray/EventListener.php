@@ -25,7 +25,7 @@ class EventListener implements Listener {
 		if (($batch = $event->getPacket()) instanceof BatchPacket && !($batch instanceof ModifiedChunk)) {
 			$batch->decode();
 			
-			foreach ($batch->getPackets() as $packet) {
+			foreach (BetterXray::getPacketsFromBatch($batch) as $packet) {
 				$chunkPacket = PacketPool::getPacket($packet);
 				if ($chunkPacket instanceof LevelChunkPacket) {
 					$chunkPacket->decode();
