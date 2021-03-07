@@ -20,7 +20,7 @@ class EventListener implements Listener {
 	 *
 	 * @ignoreCancelled false
 	 */
-	public function chunkPacket(DataPacketSendEvent $event) {
+	public function onDataSend(DataPacketSendEvent $event) {
 		/** @var $batch BatchPacket */
 		if (($batch = $event->getPacket()) instanceof BatchPacket && !($batch instanceof ModifiedChunk)) {
 			$batch->decode();
