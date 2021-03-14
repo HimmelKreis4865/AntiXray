@@ -1,8 +1,9 @@
-name: BetterXray
+name: AntiXray
 author: HimmelKreis4865
-main: HimmelKreis4865\BetterXray\BetterXray
+main: HimmelKreis4865\AntiXray\AntiXray
 version: 1.0.0
 api: 3.0.0
-description: "A PocketMine-MP plugin that disallows Xray"
+description: "A PocketMine-MP plugin that tries to prevent Xray"
 mcpe-protocol:
  - 422
+ - 428

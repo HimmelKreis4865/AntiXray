@@ -1,6 +1,6 @@
 <?php
 
-namespace HimmelKreis4865\BetterXray;
+namespace HimmelKreis4865\AntiXray;
 
 use Exception;
 use pocketmine\block\Block;
@@ -16,13 +16,16 @@ use function mt_rand;
 
 class ChunkModificationTask extends AsyncTask {
 	/** @var Chunk $chunk */
-	public $chunk;
+	protected $chunk;
 	
 	/** @var string $player */
-	public $player;
+	protected $player;
 	
 	/** @var int $level */
-	public $level;
+	protected $level;
+	
+	/** @var int[] $ores */
+	protected $ores;
 	
 	/** @var int[] */
 	public const BLOCK_SIDES = [
@@ -44,6 +47,7 @@ class ChunkModificationTask extends AsyncTask {
 	public function __construct(Chunk $chunk, Player $player) {
 		$this->chunk = $chunk->fastSerialize();
 		$this->player = $player->getName();
+		$this->ores = AntiXray::getInstance()->ores;
 		$this->level = $player->getLevel()->getId();
 	}
 	

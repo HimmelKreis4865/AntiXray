@@ -1,0 +1,5 @@
+---
+# Main Configuration file of plugin AntiXray made by HimmelKreis4865
+
+# select a list with all ores the chunk should be filled with
+ores: [14, 15, 21, 22, 41, 42, 56, 57, 73, 129, 133, 152]

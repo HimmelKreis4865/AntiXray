@@ -1,6 +1,6 @@
 <?php
 
-namespace HimmelKreis4865\BetterXray;
+namespace HimmelKreis4865\AntiXray;
 
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityExplodeEvent;
@@ -25,7 +25,7 @@ class EventListener implements Listener {
 		if (($batch = $event->getPacket()) instanceof BatchPacket && !($batch instanceof ModifiedChunk)) {
 			$batch->decode();
 			
-			foreach (BetterXray::getPacketsFromBatch($batch) as $packet) {
+			foreach (AntiXray::getPacketsFromBatch($batch) as $packet) {
 				$chunkPacket = PacketPool::getPacket($packet);
 				if ($chunkPacket instanceof LevelChunkPacket) {
 					$chunkPacket->decode();

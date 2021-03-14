@@ -1,6 +1,6 @@
 <?php
 
-namespace HimmelKreis4865\BetterXray;
+namespace HimmelKreis4865\AntiXray;
 
 use pocketmine\network\mcpe\protocol\BatchPacket;
 
