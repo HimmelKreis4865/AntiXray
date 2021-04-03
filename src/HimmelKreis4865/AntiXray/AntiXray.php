@@ -17,6 +17,8 @@ class AntiXray extends PluginBase {
 	
 	/** @var int[] */
 	public $ores = [];
+	/** @var array  */
+	public $blockQueue = [];
 	
 	/**
 	 * Initialization call on startup
@@ -25,6 +27,7 @@ class AntiXray extends PluginBase {
 	 */
 	public function onEnable() {
 		$this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+		$this->getScheduler()->scheduleRepeatingTask(new QueueUpdateTask(), 1);
 		self::$instance = $this;
 		$this->initConfig();
 	}

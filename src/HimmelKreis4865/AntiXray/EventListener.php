@@ -5,6 +5,7 @@ namespace HimmelKreis4865\AntiXray;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityExplodeEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\BatchPacket;
@@ -15,6 +16,7 @@ use pocketmine\Server;
 use function array_chunk;
 
 class EventListener implements Listener {
+
 	/**
 	 * @param DataPacketSendEvent $event
 	 *
@@ -33,34 +35,43 @@ class EventListener implements Listener {
 					$event->setCancelled();
 				}
 			}
-			
 		}
 	}
 	
 	/**
 	 * @param BlockBreakEvent $event
+     * @priority HIGH
 	 *
 	 * @ignoreCancelled false
 	 */
 	public function onBreak(BlockBreakEvent $event) {
 		if ($event->isCancelled()) return;
-		$players = $event->getBlock()->getLevel()->getChunkPlayers($event->getBlock()->getFloorX() >> 4, $event->getBlock()->getFloorZ() >> 4);
-		
 		$blocks = $this->getInvolvedBlocks([$event->getBlock()->asVector3()]);
-		
-		$event->getPlayer()->getLevel()->sendBlocks($players, $blocks, UpdateBlockPacket::FLAG_NEIGHBORS);
+        $level = $event->getPlayer()->getLevel()->getFolderName();
+        if(!isset(AntiXray::getInstance()->blockQueue[$level])) {
+            AntiXray::getInstance()->blockQueue[$level] = [];
+        }
+		foreach ($blocks as $block) {
+            AntiXray::getInstance()->blockQueue[$level][] = $block;
+        }
 	}
 	
 	/**
 	 * @param EntityExplodeEvent $event
+     * @priority HIGH
 	 *
 	 * @ignoreCancelled false
 	 */
 	public function onExplode(EntityExplodeEvent $event) {
 		if ($event->isCancelled()) return;
-		$players = $event->getPosition()->getLevel()->getChunkPlayers($event->getPosition()->getFloorX() >> 4, $event->getPosition()->getFloorZ() >> 4);
+        $level = $event->getEntity()->getLevel()->getFolderName();
+        if(!isset(AntiXray::getInstance()->blockQueue[$level])) {
+            AntiXray::getInstance()->blockQueue[$level] = [];
+        }
 		foreach (array_chunk($this->getInvolvedBlocks($event->getBlockList()), 450) as $blocks) {
-			$event->getPosition()->getLevel()->sendBlocks($players, $blocks, UpdateBlockPacket::FLAG_NEIGHBORS);
+            foreach ($blocks as $block) {
+                AntiXray::getInstance()->blockQueue[$level][] = $block;
+            }
 		}
 	}
 	
