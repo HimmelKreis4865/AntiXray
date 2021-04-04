@@ -48,9 +48,6 @@ class EventListener implements Listener {
 		if ($event->isCancelled()) return;
 		$blocks = $this->getInvolvedBlocks([$event->getBlock()->asVector3()]);
         $level = $event->getPlayer()->getLevel()->getFolderName();
-        if(!isset(AntiXray::getInstance()->blockQueue[$level])) {
-            AntiXray::getInstance()->blockQueue[$level] = [];
-        }
 		foreach ($blocks as $block) {
             AntiXray::getInstance()->blockQueue[$level][] = $block;
         }
@@ -65,9 +62,6 @@ class EventListener implements Listener {
 	public function onExplode(EntityExplodeEvent $event) {
 		if ($event->isCancelled()) return;
         $level = $event->getEntity()->getLevel()->getFolderName();
-        if(!isset(AntiXray::getInstance()->blockQueue[$level])) {
-            AntiXray::getInstance()->blockQueue[$level] = [];
-        }
 		foreach (array_chunk($this->getInvolvedBlocks($event->getBlockList()), 450) as $blocks) {
             foreach ($blocks as $block) {
                 AntiXray::getInstance()->blockQueue[$level][] = $block;

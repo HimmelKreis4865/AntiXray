@@ -26,7 +26,6 @@ class QueueUpdateTask extends Task {
                 $int++;
             }
 
-            foreach ($level->getPlayers() as $player) $player->sendTip("§r§a" . count($blocks));
             if(count($blocks) <= 0 || is_null($level)) continue;
             foreach ($level->getPlayers() as $player) {
                 $player->getLevel()->sendBlocks([$player], $blocks, UpdateBlockPacket::FLAG_ALL_PRIORITY);
