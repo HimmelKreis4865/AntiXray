@@ -2,17 +2,18 @@
 
 namespace HimmelKreis4865\AntiXray;
 
+use HimmelKreis4865\AntiXray\tasks\BlockCalculationTask;
+use HimmelKreis4865\AntiXray\tasks\ChunkModificationTask;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityExplodeEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketSendEvent;
-use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LevelChunkPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\Server;
-use function array_chunk;
+use function array_map;
 
 class EventListener implements Listener {
 	/**
@@ -46,7 +47,7 @@ class EventListener implements Listener {
 		if ($event->isCancelled()) return;
 		$players = $event->getBlock()->getLevel()->getChunkPlayers($event->getBlock()->getFloorX() >> 4, $event->getBlock()->getFloorZ() >> 4);
 		
-		$blocks = $this->getInvolvedBlocks([$event->getBlock()->asVector3()]);
+		$blocks = AntiXray::getInvolvedBlocks([$event->getBlock()->asVector3()]);
 		
 		$event->getPlayer()->getLevel()->sendBlocks($players, $blocks, UpdateBlockPacket::FLAG_NEIGHBORS);
 	}
@@ -58,35 +59,8 @@ class EventListener implements Listener {
 	 */
 	public function onExplode(EntityExplodeEvent $event) {
 		if ($event->isCancelled()) return;
-		$players = $event->getPosition()->getLevel()->getChunkPlayers($event->getPosition()->getFloorX() >> 4, $event->getPosition()->getFloorZ() >> 4);
-		foreach (array_chunk($this->getInvolvedBlocks($event->getBlockList()), 450) as $blocks) {
-			$event->getPosition()->getLevel()->sendBlocks($players, $blocks, UpdateBlockPacket::FLAG_NEIGHBORS);
-		}
-	}
-	
-	
-	/**
-	 * Returns an array with all blocks that are in sides of the blocks in parameter 1
-	 *
-	 * @api
-	 *
-	 * @param Vector3[] $blocks
-	 *
-	 * @return Vector3[]
-	 */
-	public function getInvolvedBlocks(array $blocks): array {
-		$finalBlocks = $blocks;
-		
-		foreach ($blocks as $key => $block) {
-			foreach (ChunkModificationTask::BLOCK_SIDES as $side) {
-				$side = $blocks[$key]->getSide($side);
-				
-				foreach (ChunkModificationTask::BLOCK_SIDES as $side_2)
-					$finalBlocks[] = $side->getSide($side_2);
-				
-				$finalBlocks[] = $side;
-			}
-		}
-		return $finalBlocks;
+		Server::getInstance()->getAsyncPool()->submitTask(new BlockCalculationTask(array_map(function($block) {
+			return $block->asVector3();
+		}, $event->getBlockList()), $event->getEntity()->getLevelNonNull()->getFolderName()));
 	}
 }

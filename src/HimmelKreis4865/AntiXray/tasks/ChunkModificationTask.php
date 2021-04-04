@@ -1,8 +1,10 @@
 <?php
 
-namespace HimmelKreis4865\AntiXray;
+namespace HimmelKreis4865\AntiXray\tasks;
 
 use Exception;
+use HimmelKreis4865\AntiXray\AntiXray;
+use HimmelKreis4865\AntiXray\ModifiedChunk;
 use pocketmine\block\Block;
 use pocketmine\level\format\Chunk;
 use pocketmine\network\mcpe\protocol\BatchPacket;

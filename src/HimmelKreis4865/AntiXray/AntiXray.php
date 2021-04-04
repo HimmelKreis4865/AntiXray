@@ -2,14 +2,16 @@
 
 namespace HimmelKreis4865\AntiXray;
 
+use HimmelKreis4865\AntiXray\tasks\ChunkModificationTask;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\plugin\PluginBase;
 use ReflectionClass;
 use ReflectionProperty;
+use Volatile;
 use function array_diff;
 use function array_map;
-use function var_dump;
 
 class AntiXray extends PluginBase {
 	/** @var null | self $instance */
@@ -65,5 +67,31 @@ class AntiXray extends PluginBase {
 		foreach ($this->getConfig()->getAll() as $key => $value) {
 			if (in_array($key, $properties)) $this->{$key} = $value;
 		}
+	}
+	
+	/**
+	 * Returns an array with all blocks that are in sides of the blocks in parameter 1
+	 *
+	 * @api
+	 *
+	 * @param Vector3[]|Volatile $blocks
+	 *
+	 * @return Vector3[]
+	 */
+	public static function getInvolvedBlocks($blocks): array {
+		$finalBlocks = [];
+		
+		foreach ($blocks as $key => $block) {
+			$finalBlocks[] = $block;
+			foreach (ChunkModificationTask::BLOCK_SIDES as $side) {
+				$side = $blocks[$key]->getSide($side);
+				
+				foreach (ChunkModificationTask::BLOCK_SIDES as $side_2)
+					$finalBlocks[] = $side->getSide($side_2);
+				
+				$finalBlocks[] = $side;
+			}
+		}
+		return $finalBlocks;
 	}
 }
