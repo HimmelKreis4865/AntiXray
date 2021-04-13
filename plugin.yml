@@ -5,5 +5,5 @@ version: 1.0.1
 api: 3.0.0
 description: "A PocketMine-MP plugin that tries to prevent Xray"
 mcpe-protocol:
- - 422
- - 428
+ - 429
+ - 431
