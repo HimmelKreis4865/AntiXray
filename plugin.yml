@@ -1,9 +1,7 @@
 name: AntiXray
-author: HimmelKreis4865
 main: HimmelKreis4865\AntiXray\AntiXray
-version: 1.0.1
+version: 1.0.2
 api: 3.0.0
+author: HimmelKreis4865
+mcpe-protocol: 440
 description: "A PocketMine-MP plugin that tries to prevent Xray"
-mcpe-protocol:
- - 429
- - 431
