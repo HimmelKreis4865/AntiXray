@@ -17,6 +17,7 @@ use function array_rand;
 use function mt_rand;
 
 class ChunkModificationTask extends AsyncTask {
+	
 	/** @var Chunk $chunk */
 	protected $chunk;
 	
@@ -50,24 +51,20 @@ class ChunkModificationTask extends AsyncTask {
 		$this->chunk = $chunk->fastSerialize();
 		$this->player = $player->getName();
 		$this->ores = AntiXray::getInstance()->ores;
-		$this->level = $player->getLevel()->getId();
+		$this->level = $player->getLevelNonNull()->getId();
 	}
 	
 	
 	public function onRun() {
 		$chunk = Chunk::fastDeserialize($this->chunk);
-		
 		$ores = [14, 15, 21, 22, 41, 42, 56, 57, 73, 129, 133, 152];
 		for ($yy = 0; $yy < 8; ++$yy) {
 			$subchunk = $chunk->getSubChunk($yy);
-			
 			for ($x = 1; $x < 15; ++$x) {
 				for ($z = 1; $z < 15; ++$z) {
 					for ($y = 0; $y < 16; ++$y) {
 						if ((int)$subchunk->getBlockId($x, $y, $z) !== 1 || mt_rand(1, 10) < 8) continue;
-						
 						$vector = new Vector3(($chunk->getX() * 16) + $x, ($yy * 16) + $y, ($chunk->getZ() * 16) + $z);
-						
 						foreach (self::BLOCK_SIDES as $side) {
 							$side = $vector->getSide($side);
 							if ($chunk->getBlockId($side->x & 0x0f, $side->y, $side->z & 0x0f) !== Block::STONE)
@@ -78,15 +75,13 @@ class ChunkModificationTask extends AsyncTask {
 				}
 			}
 		}
-		
 		$this->setResult($chunk);
 	}
 	
 	
 	public function onCompletion(Server $server) {
 		$player = $server->getPlayer($this->player);
-		
-		if ($player instanceof Player && $player->getLevel()->getId() === $this->level && $this->hasResult()) {
+		if ($player instanceof Player && $player->getLevelNonNull()->getId() === $this->level && $this->hasResult()) {
 			/** @var Chunk $chunk */
 			$chunk = $this->getResult();
 			try {
@@ -94,18 +89,14 @@ class ChunkModificationTask extends AsyncTask {
 					$chunk->addTile($tile);
 				}
 			} catch (Exception $exception) {
-			
+				
 			}
-			
 			$chunkPacket = LevelChunkPacket::withoutCache($chunk->getX(), $chunk->getZ(), $chunk->getSubChunkSendCount(), $chunk->networkSerialize());
-			
 			$batchPacket = new BatchPacket();
 			$batchPacket->addPacket($chunkPacket);
 			$batchPacket->setCompressionLevel(7);
 			$batchPacket->encode();
-			
 			$modifiedChunk = new ModifiedChunk($batchPacket->buffer);
-			
 			if (strlen($modifiedChunk->buffer) > 0) {
 				$modifiedChunk->isEncoded = true;
 				$player->sendDataPacket($modifiedChunk);

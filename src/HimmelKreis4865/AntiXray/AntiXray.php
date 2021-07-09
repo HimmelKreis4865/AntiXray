@@ -14,6 +14,7 @@ use function array_diff;
 use function array_map;
 
 class AntiXray extends PluginBase {
+	
 	/** @var null | self $instance */
 	protected static $instance = null;
 	
@@ -63,7 +64,6 @@ class AntiXray extends PluginBase {
 		}, $ref->getProperties()), array_map(function(ReflectionProperty $property) {
 			return $property->getName();
 		}, $ref->getParentClass()->getProperties()), array_keys($ref->getStaticProperties()));
-		
 		foreach ($this->getConfig()->getAll() as $key => $value) {
 			if (in_array($key, $properties)) $this->{$key} = $value;
 		}
@@ -80,15 +80,13 @@ class AntiXray extends PluginBase {
 	 */
 	public static function getInvolvedBlocks($blocks): array {
 		$finalBlocks = [];
-		
 		foreach ($blocks as $key => $block) {
 			$finalBlocks[] = $block;
 			foreach (ChunkModificationTask::BLOCK_SIDES as $side) {
 				$side = $blocks[$key]->getSide($side);
-				
-				foreach (ChunkModificationTask::BLOCK_SIDES as $side_2)
+				foreach (ChunkModificationTask::BLOCK_SIDES as $side_2) {
 					$finalBlocks[] = $side->getSide($side_2);
-				
+				}
 				$finalBlocks[] = $side;
 			}
 		}

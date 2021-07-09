@@ -11,6 +11,7 @@ use Volatile;
 use function array_chunk;
 
 class BlockCalculationTask extends AsyncTask {
+	
 	/** @var Volatile|Vector3[] $blocks */
 	protected $blocks;
 	

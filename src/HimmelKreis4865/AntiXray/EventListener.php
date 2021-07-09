@@ -16,6 +16,7 @@ use pocketmine\Server;
 use function array_map;
 
 class EventListener implements Listener {
+	
 	/**
 	 * @param DataPacketSendEvent $event
 	 *
@@ -25,16 +26,14 @@ class EventListener implements Listener {
 		/** @var $batch BatchPacket */
 		if (($batch = $event->getPacket()) instanceof BatchPacket && !($batch instanceof ModifiedChunk)) {
 			$batch->decode();
-			
 			foreach (AntiXray::getPacketsFromBatch($batch) as $packet) {
 				$chunkPacket = PacketPool::getPacket($packet);
 				if ($chunkPacket instanceof LevelChunkPacket) {
 					$chunkPacket->decode();
-					Server::getInstance()->getAsyncPool()->submitTask(new ChunkModificationTask($event->getPlayer()->getLevel()->getChunk($chunkPacket->getChunkX(), $chunkPacket->getChunkZ()), $event->getPlayer()));
+					Server::getInstance()->getAsyncPool()->submitTask(new ChunkModificationTask($event->getPlayer()->getLevelNonNull()->getChunk($chunkPacket->getChunkX(), $chunkPacket->getChunkZ()), $event->getPlayer()));
 					$event->setCancelled();
 				}
 			}
-			
 		}
 	}
 	
@@ -45,11 +44,9 @@ class EventListener implements Listener {
 	 */
 	public function onBreak(BlockBreakEvent $event) {
 		if ($event->isCancelled()) return;
-		$players = $event->getBlock()->getLevel()->getChunkPlayers($event->getBlock()->getFloorX() >> 4, $event->getBlock()->getFloorZ() >> 4);
-		
+		$players = $event->getBlock()->getLevelNonNull()->getChunkPlayers($event->getBlock()->getFloorX() >> 4, $event->getBlock()->getFloorZ() >> 4);
 		$blocks = AntiXray::getInvolvedBlocks([$event->getBlock()->asVector3()]);
-		
-		$event->getPlayer()->getLevel()->sendBlocks($players, $blocks, UpdateBlockPacket::FLAG_NEIGHBORS);
+		$event->getPlayer()->getLevelNonNull()->sendBlocks($players, $blocks, UpdateBlockPacket::FLAG_NEIGHBORS);
 	}
 	
 	/**
